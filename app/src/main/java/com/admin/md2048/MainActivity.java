@@ -218,7 +218,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     @Override
     public boolean dispatchTouchEvent(MotionEvent ev) {
-        if (!mDrawerLayout.isDrawerOpen(GravityCompat.START)){
+        if (!mDrawerLayout.isDrawerOpen(GravityCompat.START) && !mDrawerLayout.isDrawerVisible(GravityCompat.START)){
             gestureDetector.onTouchEvent(ev);
         }
         return super.dispatchTouchEvent(ev);
