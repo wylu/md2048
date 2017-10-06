@@ -13,7 +13,6 @@ public class Game {
 
     private int columnSize;
     private Context context;
-    private List<CellView> cellsList;
     private CellView cellViewsMatrix[][];
 
     /**
@@ -37,7 +36,6 @@ public class Game {
 
     public Game(Context context, List<CellView> cellViewList) {
         this.context = context;
-        this.cellsList = cellViewList;
         curScore = 0;
         preScore = 0;
         columnSize = (int) Math.sqrt(cellViewList.size());
@@ -70,8 +68,8 @@ public class Game {
      * @param curScore
      */
     public void recover(int[][] preState, int[][] curState, int preScore, int curScore) {
-        ArrayUtil.matrixCopy(preState,preCellsMatrix,preState.length,preState[0].length);
-        ArrayUtil.matrixCopy(curState,curCellsMatrix,curState.length,curState[0].length);
+        ArrayUtil.matrixCopy(preState, preCellsMatrix, preState.length, preState[0].length);
+        ArrayUtil.matrixCopy(curState, curCellsMatrix, curState.length, curState[0].length);
         this.preScore = preScore;
         this.curScore = curScore;
         scoreChangeListener.changeScore(curScore);
@@ -132,7 +130,7 @@ public class Game {
     }
 
     /**
-     * 撤销操作
+     * 撤销操作(允许撤销一次)
      */
     public void undoMove() {
         curScore = preScore;
@@ -301,6 +299,22 @@ public class Game {
             }
         }
         return true;
+    }
+
+    /**
+     * 判断游戏是否胜利
+     *
+     * @return 胜利返回true; 失败返回false
+     */
+    public boolean isWin() {
+        for (int i=0;i<columnSize;i++){
+            for (int j =0;j<columnSize;j++){
+                if(curCellsMatrix[i][j] >= 2048){
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     /**

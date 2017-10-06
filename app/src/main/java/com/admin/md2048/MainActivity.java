@@ -3,18 +3,25 @@ package com.admin.md2048;
 import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.os.Bundle;
+import android.os.Handler;
 import android.preference.PreferenceManager;
+import android.support.v4.view.GravityCompat;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.*;
-import android.widget.ImageView;
-import android.widget.TextView;
-import android.widget.Toast;
+import android.widget.*;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class MainActivity extends Activity implements View.OnClickListener {
+import static java.lang.Thread.sleep;
+
+public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
     private static final String PRE_SCORE = "pre_score";
     private static final String CUR_SCORE = "cur_score";
@@ -36,12 +43,14 @@ public class MainActivity extends Activity implements View.OnClickListener {
     private Game game;
     private boolean isGameOver;
     private int highScore;
-    private int score;
+    private int currentScore;
+
+    private DrawerLayout mDrawerLayout;
+    private LinearLayout menuResetHighScore;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.activity_main);
 
         initData();
@@ -120,7 +129,6 @@ public class MainActivity extends Activity implements View.OnClickListener {
             playGame();
         }
         game.recover(preState, curState, preScore, curScore);
-//        isGameOver = false;
 //        while (!isGameOver){
 //            game.move(0);
 //            game.move(1);
@@ -137,7 +145,6 @@ public class MainActivity extends Activity implements View.OnClickListener {
     }
 
     private void initData() {
-        SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
         highScore = getHighScoreFromSpf();
     }
 
@@ -148,18 +155,32 @@ public class MainActivity extends Activity implements View.OnClickListener {
             @Override
             public void changeScore(int score) {
                 scoreView.setText(String.valueOf(score));
+                currentScore = score;
             }
         });
         game.setGameOverListener(new Game.GameOverListener() {
             @Override
             public void gameOver(int score) {
                 if (score > highScore) {
-                    highScore = score;
-                    saveHighScore();
+                    saveHighScore(score);
                 }
                 isGameOver = true;
+                if (game.isWin()){
+                    gameOverView.setText(R.string.game_win);
+                }
                 gameOverView.setVisibility(View.VISIBLE);
                 refreshView.setBackgroundResource(R.drawable.cell_rectangle_2048);
+//                Handler handler = new Handler();
+//                handler.postDelayed(new Runnable() {
+//                    @Override
+//                    public void run() {
+//                        if (game.isWin()){
+//                            gameOverView.setText(R.string.game_win);
+//                        }else {
+//                            gameOverView.setText(R.string.game_lose);
+//                        }
+//                    }
+//                },1000);
             }
         });
         game.run();
@@ -176,13 +197,31 @@ public class MainActivity extends Activity implements View.OnClickListener {
 
         refreshView.setOnClickListener(this);
         undoView.setOnClickListener(this);
+
+        mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        //设置Toolbar标题
+        toolbar.setTitle("");
+        //设置标题颜色
+        toolbar.setTitleTextColor(Color.parseColor("#ffffff"));
+        setSupportActionBar(toolbar);
+        //打开-关闭监听
+        ActionBarDrawerToggle mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout, toolbar, R.string.drawer_open, R.string.drawer_close);
+        mDrawerToggle.syncState();
+        mDrawerLayout.addDrawerListener(mDrawerToggle);
+
+        //侧滑菜单项
+        menuResetHighScore = (LinearLayout) findViewById(R.id.menu_reset_high_score);
+        menuResetHighScore.setOnClickListener(this);
     }
 
-
     @Override
-    public boolean onTouchEvent(MotionEvent event) {
-        gestureDetector.onTouchEvent(event);
-        return true;
+    public boolean dispatchTouchEvent(MotionEvent ev) {
+        if (!mDrawerLayout.isDrawerOpen(GravityCompat.START)){
+            gestureDetector.onTouchEvent(ev);
+        }
+        return super.dispatchTouchEvent(ev);
     }
 
     @Override
@@ -236,7 +275,12 @@ public class MainActivity extends Activity implements View.OnClickListener {
         int id = v.getId();
         switch (id) {
             case R.id.refresh:
+                //如果游戏还没结束时刷新，且当前分数比最高分数大
+                if(!isGameOver && currentScore > highScore){
+                    saveHighScore(currentScore);
+                }
                 gameOverView.setVisibility(View.GONE);
+                gameOverView.setText(R.string.game_over);
                 refreshView.setBackgroundResource(R.drawable.background_rectangle);
                 highScore = getHighScoreFromSpf();
                 highScoreView.setText(String.valueOf(highScore));
@@ -247,7 +291,21 @@ public class MainActivity extends Activity implements View.OnClickListener {
                 refreshView.setBackgroundResource(R.drawable.background_rectangle);
                 game.undoMove();
                 break;
+            case R.id.menu_reset_high_score:
+                mDrawerLayout.closeDrawer(GravityCompat.START);
+                resetHighScore();
+                break;
         }
+    }
+
+    /**
+     * 重置最高分数
+     */
+    private void resetHighScore() {
+        highScore = 0;
+        saveHighScore(highScore);
+        highScoreView.setText(String.valueOf(highScore));
+        Toast.makeText(this,"重置成功!",Toast.LENGTH_SHORT).show();
     }
 
     /**
@@ -263,10 +321,10 @@ public class MainActivity extends Activity implements View.OnClickListener {
     /**
      * 保存最高分数到SharedPreferences
      */
-    private void saveHighScore() {
+    private void saveHighScore(int mark) {
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
         SharedPreferences.Editor editor = settings.edit();
-        editor.putInt(HIGH_SCORE, highScore);
+        editor.putInt(HIGH_SCORE, mark);
         editor.commit();
     }
 }
