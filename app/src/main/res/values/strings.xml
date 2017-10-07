@@ -14,4 +14,16 @@
 
     <string name="reset_high_score">重置最高分</string>
     <string name="to_reach_2048">To Reach 2048</string>
+    <string name="to_reach_4096">Next Goal 4096</string>
+    <string name="to_reach_8192">Next Goal 8192</string>
+    <string name="to_reach_16384">Next Goal 16384</string>
+    <string name="to_reach_32768">Next Goal 32768</string>
+    <string name="to_reach_65536">Next Goal 65536</string>
+
+
+    <string name="general_strategy">点我帮你开挂</string>
+    <string name="advanced_strategy">开发者模式</string>
+
+    <string name="auto">Auto</string>
+    <string name="hint">Hint</string>
 </resources>

@@ -1,25 +1,22 @@
 package com.admin.md2048;
 
-import android.app.Activity;
-import android.content.Context;
+import android.annotation.SuppressLint;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Message;
 import android.preference.PreferenceManager;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.*;
 import android.widget.*;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import static java.lang.Thread.sleep;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -35,9 +32,18 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private List<CellView> cellViewList;
     private TextView scoreView;
     private TextView highScoreView;
+    //刷新
     private ImageView refreshView;
+    //撤销
     private ImageView undoView;
+    //提示
+    private TextView hintView;
+    private ImageView showHintView;
+    //自动
+    private TextView autoView;
+    //游戏结束时视图
     private TextView gameOverView;
+    //检测手势
     private GestureDetector gestureDetector;
 
     private Game game;
@@ -45,19 +51,47 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private int highScore;
     private int currentScore;
 
+    /**
+     * 侧滑菜单
+     */
     private DrawerLayout mDrawerLayout;
     private LinearLayout menuResetHighScore;
+    private LinearLayout menuGeneralStrategy;
+    private LinearLayout menuAdvancedStrategy;
+
+
+    /**
+     * 处理子线程的视图更新操作
+     */
+    @SuppressLint("HandlerLeak")
+    private final Handler handler = new Handler(){
+        @Override
+        public void handleMessage(Message msg) {
+            switch (msg.what){
+                case Constants.GENERAL_STRATEGY:
+                    game.manualUpdateView();
+                    break;
+                case Constants.ADVANCED_STRATEGY:
+                    break;
+            }
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        //初始化数据
         initData();
+        //初始化主布局
         initView();
+        //初始化侧滑菜单
+        initDrawerLayoutMenu();
 
 //        Log.d("==onCreate==", "========onCreate>>>>>>>>>>>>>");
         isGameOver = false;
+        //判断是否存在保存的游戏状态，如果没有则重新创建一个游戏；如果有则在执行onResume()时恢复游戏状态
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
         if (!settings.getBoolean(SAVE_STATE, false)) {
             playGame();
@@ -81,10 +115,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         editor.putInt(PRE_SCORE, game.getPreScore());
         editor.putInt(CUR_SCORE, game.getCurScore());
 
-        if (isGameOver){
+        if (isGameOver) {
             editor.putBoolean(SAVE_STATE, false);
-        }else {
-            editor.putBoolean(SAVE_STATE,true);
+        } else {
+            editor.putBoolean(SAVE_STATE, true);
         }
         editor.commit();
     }
@@ -93,6 +127,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     protected void onResume() {
 //        Log.d("==onResume==", "==========onRusume()========");
         super.onResume();
+        //如果有保存游戏状态，则恢复之前的游戏状态
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
         if (settings.getBoolean(SAVE_STATE, false)) {
             loadSaveState();
@@ -129,12 +164,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             playGame();
         }
         game.recover(preState, curState, preScore, curScore);
-//        while (!isGameOver){
-//            game.move(0);
-//            game.move(1);
-//            game.move(2);
-//            game.move(3);
-//        }
     }
 
     @Override
@@ -144,6 +173,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         saveState();
     }
 
+    /**
+     * 初始化数据，获取程序运行需要的数据
+     */
     private void initData() {
         highScore = getHighScoreFromSpf();
     }
@@ -156,17 +188,22 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             public void changeScore(int score) {
                 scoreView.setText(String.valueOf(score));
                 currentScore = score;
+                //如果当前分数比最高分大，则同步更新最高分
+                if (currentScore > highScore) {
+                    highScore = currentScore;
+                    saveHighScore(highScore);
+                    highScoreView.setText(String.valueOf(highScore));
+                }
             }
         });
         game.setGameOverListener(new Game.GameOverListener() {
             @Override
             public void gameOver(int score) {
-                if (score > highScore) {
-                    saveHighScore(score);
-                }
                 isGameOver = true;
-                if (game.isWin()){
+                if (game.isWin()) {
+                    gameOverView.setBackgroundResource(R.color.you_win);
                     gameOverView.setText(R.string.game_win);
+                    gameOverView.setTextColor(R.color.md_white_1000);
                 }
                 gameOverView.setVisibility(View.VISIBLE);
                 refreshView.setBackgroundResource(R.drawable.cell_rectangle_2048);
@@ -186,6 +223,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         game.run();
     }
 
+    /**
+     * 初始化主布局视图
+     */
     private void initView() {
         cellViewList = getAllCellView();
         scoreView = (TextView) findViewById(R.id.score);
@@ -195,11 +235,22 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         undoView = (ImageView) findViewById(R.id.undo);
         gameOverView = (TextView) findViewById(R.id.game_over);
 
+        hintView = (TextView) findViewById(R.id.hint);
+        showHintView = (ImageView) findViewById(R.id.arrow);
+        autoView = (TextView) findViewById(R.id.auto);
+        hintView.setOnClickListener(this);
+        autoView.setOnClickListener(this);
+
         refreshView.setOnClickListener(this);
         undoView.setOnClickListener(this);
+    }
 
+    /**
+     * 初始化侧滑菜单布局视图
+     */
+    private void initDrawerLayoutMenu() {
+        //侧滑菜单
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
-
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         //设置Toolbar标题
         toolbar.setTitle("");
@@ -214,41 +265,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         //侧滑菜单项
         menuResetHighScore = (LinearLayout) findViewById(R.id.menu_reset_high_score);
         menuResetHighScore.setOnClickListener(this);
+        menuGeneralStrategy = (LinearLayout) findViewById(R.id.menu_general_strategy);
+        menuGeneralStrategy.setOnClickListener(this);
+        menuAdvancedStrategy = (LinearLayout) findViewById(R.id.menu_advanced_strategy);
+        menuAdvancedStrategy.setOnClickListener(this);
     }
 
-    @Override
-    public boolean dispatchTouchEvent(MotionEvent ev) {
-        if (!mDrawerLayout.isDrawerOpen(GravityCompat.START) && !mDrawerLayout.isDrawerVisible(GravityCompat.START)){
-            gestureDetector.onTouchEvent(ev);
-        }
-        return super.dispatchTouchEvent(ev);
-    }
-
-    @Override
-    public boolean onKeyDown(int keyCode, KeyEvent event) {
-
-        switch (keyCode) {
-            case KeyEvent.KEYCODE_DPAD_DOWN:
-                game.move(Constants.ACTION_DOWN);
-//                Toast.makeText(this, "down", Toast.LENGTH_SHORT).show();
-                return true;
-            case KeyEvent.KEYCODE_DPAD_UP:
-                game.move(Constants.ACTION_UP);
-//                Toast.makeText(this, "up", Toast.LENGTH_SHORT).show();
-                return true;
-            case KeyEvent.KEYCODE_DPAD_LEFT:
-                game.move(Constants.ACTION_LEFT);
-//                Toast.makeText(this, "left", Toast.LENGTH_SHORT).show();
-                return true;
-            case KeyEvent.KEYCODE_DPAD_RIGHT:
-                game.move(Constants.ACTION_RIGHT);
-//                Toast.makeText(this, "right", Toast.LENGTH_SHORT).show();
-                return true;
-        }
-
-        return super.onKeyDown(keyCode, event);
-    }
-
+    /**
+     * 获取所有的方块
+     *
+     * @return
+     */
     private List<CellView> getAllCellView() {
         List<CellView> cellViews = new ArrayList<>();
         cellViews.add((CellView) findViewById(R.id.cell_00));
@@ -275,10 +302,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         int id = v.getId();
         switch (id) {
             case R.id.refresh:
-                //如果游戏还没结束时刷新，且当前分数比最高分数大
-                if(!isGameOver && currentScore > highScore){
-                    saveHighScore(currentScore);
-                }
                 gameOverView.setVisibility(View.GONE);
                 gameOverView.setText(R.string.game_over);
                 refreshView.setBackgroundResource(R.drawable.background_rectangle);
@@ -295,6 +318,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 mDrawerLayout.closeDrawer(GravityCompat.START);
                 resetHighScore();
                 break;
+            case R.id.menu_general_strategy:
+                mDrawerLayout.closeDrawer(GravityCompat.START);
+                Player.play(game,handler);
+                break;
+            case R.id.auto:
+                Player.play(game,handler);
+                break;
+            case R.id.hint:
+                break;
         }
     }
 
@@ -305,7 +337,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         highScore = 0;
         saveHighScore(highScore);
         highScoreView.setText(String.valueOf(highScore));
-        Toast.makeText(this,"重置成功!",Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, "重置成功!", Toast.LENGTH_SHORT).show();
     }
 
     /**
@@ -327,4 +359,51 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         editor.putInt(HIGH_SCORE, mark);
         editor.commit();
     }
+
+    /**
+     * 在事件分发之前，先处理手势操作，否则drawerlayout会拦截并消费手势事件，导致子view无响应
+     *
+     * @param ev
+     * @return
+     */
+    @Override
+    public boolean dispatchTouchEvent(MotionEvent ev) {
+        if (!mDrawerLayout.isDrawerOpen(GravityCompat.START) && !mDrawerLayout.isDrawerVisible(GravityCompat.START)) {
+            gestureDetector.onTouchEvent(ev);
+        }
+        return super.dispatchTouchEvent(ev);
+    }
+
+    /**
+     * 响应按键输入操作
+     *
+     * @param keyCode
+     * @param event
+     * @return
+     */
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+
+        switch (keyCode) {
+            case KeyEvent.KEYCODE_DPAD_DOWN:
+                game.move(Constants.ACTION_DOWN,true);
+//                Toast.makeText(this, "down", Toast.LENGTH_SHORT).show();
+                return true;
+            case KeyEvent.KEYCODE_DPAD_UP:
+                game.move(Constants.ACTION_UP,true);
+//                Toast.makeText(this, "up", Toast.LENGTH_SHORT).show();
+                return true;
+            case KeyEvent.KEYCODE_DPAD_LEFT:
+                game.move(Constants.ACTION_LEFT,true);
+//                Toast.makeText(this, "left", Toast.LENGTH_SHORT).show();
+                return true;
+            case KeyEvent.KEYCODE_DPAD_RIGHT:
+                game.move(Constants.ACTION_RIGHT,true);
+//                Toast.makeText(this, "right", Toast.LENGTH_SHORT).show();
+                return true;
+        }
+
+        return super.onKeyDown(keyCode, event);
+    }
+
 }

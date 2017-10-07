@@ -108,6 +108,18 @@ public class CellView extends View {
             case 4096:
                 cellBackgroundRect = ContextCompat.getDrawable(context, R.drawable.cell_rectangle_4096);
                 break;
+            case 8192:
+                cellBackgroundRect = ContextCompat.getDrawable(context, R.drawable.cell_rectangle_8192);
+                break;
+            case 16384:
+                cellBackgroundRect = ContextCompat.getDrawable(context, R.drawable.cell_rectangle_16384);
+                break;
+            case 32768:
+                cellBackgroundRect = ContextCompat.getDrawable(context, R.drawable.cell_rectangle_32768);
+                break;
+            case 65536:
+                cellBackgroundRect = ContextCompat.getDrawable(context, R.drawable.cell_rectangle_65536);
+                break;
             default:
                 cellBackgroundRect = ContextCompat.getDrawable(context, R.drawable.cell_rectangle);
                 break;

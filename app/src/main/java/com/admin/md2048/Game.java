@@ -1,6 +1,9 @@
 package com.admin.md2048;
 
 import android.content.Context;
+import android.os.Handler;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,7 +29,6 @@ public class Game {
     private int curCellsMatrix[][];
     private int curScore;
     private ScoreChangeListener scoreChangeListener;
-
     private GameOverListener gameOverListener;
 
     /**
@@ -34,10 +36,16 @@ public class Game {
      */
     private boolean isCellHaveMoved;
 
+    /**
+     * 游戏是否结束
+     */
+    private boolean gameStatus;
+
     public Game(Context context, List<CellView> cellViewList) {
         this.context = context;
         curScore = 0;
         preScore = 0;
+        gameStatus = false;
         columnSize = (int) Math.sqrt(cellViewList.size());
         cellViewsMatrix = new CellView[columnSize][columnSize];
         curCellsMatrix = new int[columnSize][columnSize];
@@ -68,6 +76,7 @@ public class Game {
      * @param curScore
      */
     public void recover(int[][] preState, int[][] curState, int preScore, int curScore) {
+        gameStatus = false;
         ArrayUtil.matrixCopy(preState, preCellsMatrix, preState.length, preState[0].length);
         ArrayUtil.matrixCopy(curState, curCellsMatrix, curState.length, curState[0].length);
         this.preScore = preScore;
@@ -78,12 +87,19 @@ public class Game {
 
     /**
      * 根据用户手势合并数值
+     * 关于isAutoUpdateView补充说明：
+     *     该参数为了避免新开子线程中调用该方法时，更新UI线程而引起的异常(CalledFromWrongThreadException)
+     *     而使用子线程是为了AI程序能够模拟人类玩家
      *
      * @param action
+     * @param isAutoUpdateView 是否自动更新视图，如果传入false，需要手动更新视图
      */
-    public void move(int action) {
+    public void move(int action,boolean isAutoUpdateView) {
         if (isGameOver()) {
-            gameOverListener.gameOver(curScore);
+            gameStatus = true;
+            if (isAutoUpdateView){
+                gameOverListener.gameOver(curScore);
+            }
         } else {
             //移动前，先保存当前状态( 网格状态、分数 )
             int saveState[][] = new int[columnSize][columnSize], saveScore = curScore;
@@ -108,11 +124,32 @@ public class Game {
             if (isCellHaveMoved) {
                 preScore = saveScore;
                 ArrayUtil.matrixCopy(saveState, preCellsMatrix, columnSize, columnSize);
-                //通知监听者分数发生了改变
+                //自动更新视图
+                if (isAutoUpdateView){
+                    //通知监听者分数发生了改变
+                    scoreChangeListener.changeScore(curScore);
+                    //更新视图
+                    updateView();
+                    //随机生成新的数字
+                    generateRandomNum();
+                }
+            }
+        }
+    }
+
+    /**
+     * 手动更新视图
+     * 判断游戏是否结束
+     *     结束：显示结束视图
+     *     未结束：更新score、方块的视图
+     */
+    public void manualUpdateView(){
+        if (isOver()){
+            gameOverListener.gameOver(curScore);
+        }else {
+            if (isCellHaveMoved){
                 scoreChangeListener.changeScore(curScore);
-                //更新视图
                 updateView();
-                //随机生成新的数字
                 generateRandomNum();
             }
         }
@@ -179,6 +216,12 @@ public class Game {
         ArrayUtil.clockwiseRotate90(curCellsMatrix, columnSize);
     }
 
+    /**
+     * 合并相同的数字
+     *
+     * @param row
+     * @param action
+     */
     private void mergeCells(int[] row, int action) {
         int mergeRow[] = new int[row.length];
         System.arraycopy(row, 0, mergeRow, 0, row.length);
@@ -251,6 +294,8 @@ public class Game {
         int newNum = Math.random() < 0.9 ? 2 : 4;
         curCellsMatrix[zeroCells.get(next) / columnSize][zeroCells.get(next) % columnSize] = newNum;
         cellViewsMatrix[zeroCells.get(next) / columnSize][zeroCells.get(next) % columnSize].setNumber(newNum);
+        Animation  myAnimation = AnimationUtils.loadAnimation(context, R.anim.scale);
+        cellViewsMatrix[zeroCells.get(next) / columnSize][zeroCells.get(next) % columnSize].startAnimation(myAnimation);
     }
 
     /**
@@ -307,9 +352,9 @@ public class Game {
      * @return 胜利返回true; 失败返回false
      */
     public boolean isWin() {
-        for (int i=0;i<columnSize;i++){
-            for (int j =0;j<columnSize;j++){
-                if(curCellsMatrix[i][j] >= 2048){
+        for (int i = 0; i < columnSize; i++) {
+            for (int j = 0; j < columnSize; j++) {
+                if (curCellsMatrix[i][j] >= 2048) {
                     return true;
                 }
             }
@@ -362,15 +407,16 @@ public class Game {
         return preScore;
     }
 
-    public void setPreScore(int preScore) {
-        this.preScore = preScore;
-    }
-
     public int getCurScore() {
         return curScore;
     }
 
-    public void setCurScore(int curScore) {
-        this.curScore = curScore;
+    /**
+     * 游戏是否结束
+     *
+     * @return 返回游戏状态
+     */
+    public boolean isOver() {
+        return gameStatus;
     }
 }

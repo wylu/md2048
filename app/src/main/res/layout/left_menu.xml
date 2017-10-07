@@ -21,10 +21,7 @@
                 android:src="@drawable/logo_2048"/>
     </LinearLayout>
 
-    <ImageView
-            android:layout_width="match_parent"
-            android:layout_height="1px"
-            android:background="@color/text_black"/>
+    <include layout="@layout/separator"/>
 
     <LinearLayout
             android:layout_width="match_parent"
@@ -54,10 +51,59 @@
                     android:textSize="18sp"
                     android:textColor="@color/md_grey_600"/>
         </LinearLayout>
-        <ImageView
+
+        <include layout="@layout/separator"/>
+
+        <LinearLayout
+                android:id="@+id/menu_general_strategy"
                 android:layout_width="match_parent"
-                android:layout_height="1px"
-                android:background="@color/text_black"/>
+                android:layout_height="wrap_content"
+                android:background="@drawable/menu_item_bg_selector"
+                android:clickable="true"
+                android:orientation="horizontal">
+            <ImageView
+                    android:layout_width="38dp"
+                    android:layout_height="38dp"
+                    android:padding="7dp"
+                    android:src="@drawable/smile"/>
+            <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="38dp"
+                    android:layout_marginLeft="10dp"
+                    android:layout_marginStart="10dp"
+                    android:gravity="center_vertical"
+                    android:text="@string/general_strategy"
+                    android:textSize="18sp"
+                    android:textColor="@color/md_grey_600"/>
+        </LinearLayout>
+
+        <include layout="@layout/separator"/>
+
+        <LinearLayout
+                android:id="@+id/menu_advanced_strategy"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/menu_item_bg_selector"
+                android:clickable="true"
+                android:orientation="horizontal">
+            <ImageView
+                    android:layout_width="38dp"
+                    android:layout_height="38dp"
+                    android:padding="4dp"
+                    android:src="@drawable/robot"/>
+            <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="38dp"
+                    android:layout_marginLeft="10dp"
+                    android:layout_marginStart="10dp"
+                    android:gravity="center_vertical"
+                    android:text="@string/advanced_strategy"
+                    android:textSize="18sp"
+                    android:textColor="@color/md_grey_600"/>
+        </LinearLayout>
+
+        <include layout="@layout/separator"/>
+
     </LinearLayout>
 
 </LinearLayout>

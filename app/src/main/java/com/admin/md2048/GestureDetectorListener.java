@@ -42,16 +42,16 @@ public class GestureDetectorListener extends GestureDetector.SimpleOnGestureList
         float offsetY = e2.getY() - e1.getY();
 
         if (offsetX > FLING_MIN_DISTANCE && Math.abs(offsetX) > Math.abs(offsetY)) {
-            game.move(Constants.ACTION_RIGHT);
+            game.move(Constants.ACTION_RIGHT,true);
 //            Toast.makeText(context, "right", Toast.LENGTH_SHORT).show();
         } else if (offsetX < -FLING_MIN_DISTANCE && Math.abs(offsetX) > Math.abs(offsetY)) {
-            game.move(Constants.ACTION_LEFT);
+            game.move(Constants.ACTION_LEFT,true);
 //            Toast.makeText(context, "left", Toast.LENGTH_SHORT).show();
         } else if (offsetY > FLING_MIN_DISTANCE && Math.abs(offsetX) < Math.abs(offsetY)) {
-            game.move(Constants.ACTION_DOWN);
+            game.move(Constants.ACTION_DOWN,true);
 //            Toast.makeText(context, "down", Toast.LENGTH_SHORT).show();
         } else if (offsetY < -FLING_MIN_DISTANCE && Math.abs(offsetX) < Math.abs(offsetY)) {
-            game.move(Constants.ACTION_UP);
+            game.move(Constants.ACTION_UP,true);
 //            Toast.makeText(context, "up", Toast.LENGTH_SHORT).show();
         }
 

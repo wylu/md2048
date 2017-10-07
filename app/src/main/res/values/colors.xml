@@ -13,6 +13,9 @@
     <color name="score_header">#cdc2b8</color>
     <color name="score">#f9f6f2</color>
 
+    <color name="game_over">#66f7f7f7</color>
+    <color name="you_win">#aaFFCC33</color>
+
     <!--reds-->
     <color name="md_red_50">#FFEBEE</color>
     <color name="md_red_100">#FFCDD2</color>

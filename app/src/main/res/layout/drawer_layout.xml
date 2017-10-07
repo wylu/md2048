@@ -110,13 +110,53 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="6dp">
+
                 <TextView
+                        android:id="@+id/auto"
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
+                        android:layout_height="32dp"
                         android:layout_centerVertical="true"
-                        android:text="@string/to_reach_2048"
-                        android:textSize="20sp"
-                        android:textColor="@color/text_brown"/>
+                        android:background="@drawable/background_rectangle"
+                        android:gravity="center"
+                        android:paddingLeft="12dp"
+                        android:paddingRight="12dp"
+                        android:text="@string/auto"
+                        android:textSize="22sp"
+                        android:textColor="@color/md_white_1000"/>
+
+                <TextView
+                        android:id="@+id/hint"
+                        android:layout_width="wrap_content"
+                        android:layout_height="32dp"
+                        android:layout_toRightOf="@id/auto"
+                        android:layout_toEndOf="@id/auto"
+                        android:layout_centerVertical="true"
+                        android:layout_marginLeft="12dp"
+                        android:layout_marginStart="12dp"
+                        android:background="@drawable/background_rectangle"
+                        android:gravity="center"
+                        android:paddingLeft="5dp"
+                        android:paddingRight="5dp"
+                        android:text="@string/hint"
+                        android:textSize="22sp"
+                        android:textColor="@color/md_white_1000"/>
+
+                <ImageView
+                        android:id="@+id/arrow"
+                        android:layout_width="45dp"
+                        android:layout_height="38dp"
+                        android:paddingRight="10dp"
+                        android:paddingLeft="10dp"
+                        android:layout_toRightOf="@id/hint"
+                        android:layout_toEndOf="@id/hint"/>
+
+                <!--<TextView-->
+                        <!--android:layout_width="wrap_content"-->
+                        <!--android:layout_height="wrap_content"-->
+                        <!--android:layout_centerVertical="true"-->
+                        <!--android:text="@string/to_reach_2048"-->
+                        <!--android:textSize="20sp"-->
+                        <!--android:textColor="@color/text_brown"/>-->
 
                 <ImageView
                         android:id="@+id/refresh"
@@ -139,6 +179,7 @@
                         android:layout_marginEnd="10dp"
                         android:src="@drawable/ic_undo"
                         android:background="@drawable/background_rectangle"/>
+
             </RelativeLayout>
 
             <LinearLayout
@@ -165,33 +206,51 @@
                                 android:layout_height="wrap_content"
                                 android:orientation="horizontal">
 
-                            <com.admin.md2048.CellView
-                                    android:id="@+id/cell_00"
+                            <LinearLayout
                                     android:layout_width="0dp"
                                     android:layout_height="wrap_content"
                                     android:layout_margin="5dp"
-                                    android:layout_weight="1"/>
+                                    android:layout_weight="1"
+                                    android:background="@drawable/cell_rectangle">
+                                <com.admin.md2048.CellView
+                                        android:id="@+id/cell_00"
+                                        android:layout_width="match_parent"
+                                        android:layout_height="wrap_content"/>
+                            </LinearLayout>
+                            <LinearLayout
+                                    android:layout_width="0dp"
+                                    android:layout_height="wrap_content"
+                                    android:layout_margin="5dp"
+                                    android:layout_weight="1"
+                                    android:background="@drawable/cell_rectangle">
+                                <com.admin.md2048.CellView
+                                        android:id="@+id/cell_01"
+                                        android:layout_width="match_parent"
+                                        android:layout_height="wrap_content"/>
+                            </LinearLayout>
+                            <LinearLayout
+                                    android:layout_width="0dp"
+                                    android:layout_height="wrap_content"
+                                    android:layout_margin="5dp"
+                                    android:layout_weight="1"
+                                    android:background="@drawable/cell_rectangle">
+                                <com.admin.md2048.CellView
+                                        android:id="@+id/cell_02"
+                                        android:layout_width="match_parent"
+                                        android:layout_height="wrap_content"/>
+                            </LinearLayout>
+                            <LinearLayout
+                                    android:layout_width="0dp"
+                                    android:layout_height="wrap_content"
+                                    android:layout_margin="5dp"
+                                    android:layout_weight="1"
+                                    android:background="@drawable/cell_rectangle">
+                                <com.admin.md2048.CellView
+                                        android:id="@+id/cell_03"
+                                        android:layout_width="match_parent"
+                                        android:layout_height="wrap_content"/>
+                            </LinearLayout>
 
-                            <com.admin.md2048.CellView
-                                    android:id="@+id/cell_01"
-                                    android:layout_width="0dp"
-                                    android:layout_height="wrap_content"
-                                    android:layout_margin="5dp"
-                                    android:layout_weight="1"/>
-
-                            <com.admin.md2048.CellView
-                                    android:id="@+id/cell_02"
-                                    android:layout_width="0dp"
-                                    android:layout_height="wrap_content"
-                                    android:layout_margin="5dp"
-                                    android:layout_weight="1"/>
-
-                            <com.admin.md2048.CellView
-                                    android:id="@+id/cell_03"
-                                    android:layout_width="0dp"
-                                    android:layout_height="wrap_content"
-                                    android:layout_margin="5dp"
-                                    android:layout_weight="1"/>
                         </LinearLayout>
 
                         <LinearLayout
@@ -200,33 +259,50 @@
                                 android:layout_height="wrap_content"
                                 android:orientation="horizontal">
 
-                            <com.admin.md2048.CellView
-                                    android:id="@+id/cell_10"
+                            <LinearLayout
                                     android:layout_width="0dp"
                                     android:layout_height="wrap_content"
                                     android:layout_margin="5dp"
-                                    android:layout_weight="1"/>
-
-                            <com.admin.md2048.CellView
-                                    android:id="@+id/cell_11"
+                                    android:layout_weight="1"
+                                    android:background="@drawable/cell_rectangle">
+                                <com.admin.md2048.CellView
+                                        android:id="@+id/cell_10"
+                                        android:layout_width="match_parent"
+                                        android:layout_height="wrap_content"/>
+                            </LinearLayout>
+                            <LinearLayout
                                     android:layout_width="0dp"
                                     android:layout_height="wrap_content"
                                     android:layout_margin="5dp"
-                                    android:layout_weight="1"/>
-
-                            <com.admin.md2048.CellView
-                                    android:id="@+id/cell_12"
+                                    android:layout_weight="1"
+                                    android:background="@drawable/cell_rectangle">
+                                <com.admin.md2048.CellView
+                                        android:id="@+id/cell_11"
+                                        android:layout_width="match_parent"
+                                        android:layout_height="wrap_content"/>
+                            </LinearLayout>
+                            <LinearLayout
                                     android:layout_width="0dp"
                                     android:layout_height="wrap_content"
                                     android:layout_margin="5dp"
-                                    android:layout_weight="1"/>
-
-                            <com.admin.md2048.CellView
-                                    android:id="@+id/cell_13"
+                                    android:layout_weight="1"
+                                    android:background="@drawable/cell_rectangle">
+                                <com.admin.md2048.CellView
+                                        android:id="@+id/cell_12"
+                                        android:layout_width="match_parent"
+                                        android:layout_height="wrap_content"/>
+                            </LinearLayout>
+                            <LinearLayout
                                     android:layout_width="0dp"
                                     android:layout_height="wrap_content"
                                     android:layout_margin="5dp"
-                                    android:layout_weight="1"/>
+                                    android:layout_weight="1"
+                                    android:background="@drawable/cell_rectangle">
+                                <com.admin.md2048.CellView
+                                        android:id="@+id/cell_13"
+                                        android:layout_width="match_parent"
+                                        android:layout_height="wrap_content"/>
+                            </LinearLayout>
                         </LinearLayout>
 
                         <LinearLayout
@@ -235,33 +311,50 @@
                                 android:layout_height="wrap_content"
                                 android:orientation="horizontal">
 
-                            <com.admin.md2048.CellView
-                                    android:id="@+id/cell_20"
+                            <LinearLayout
                                     android:layout_width="0dp"
                                     android:layout_height="wrap_content"
                                     android:layout_margin="5dp"
-                                    android:layout_weight="1"/>
-
-                            <com.admin.md2048.CellView
-                                    android:id="@+id/cell_21"
+                                    android:layout_weight="1"
+                                    android:background="@drawable/cell_rectangle">
+                                <com.admin.md2048.CellView
+                                        android:id="@+id/cell_20"
+                                        android:layout_width="match_parent"
+                                        android:layout_height="wrap_content"/>
+                            </LinearLayout>
+                            <LinearLayout
                                     android:layout_width="0dp"
                                     android:layout_height="wrap_content"
                                     android:layout_margin="5dp"
-                                    android:layout_weight="1"/>
-
-                            <com.admin.md2048.CellView
-                                    android:id="@+id/cell_22"
+                                    android:layout_weight="1"
+                                    android:background="@drawable/cell_rectangle">
+                                <com.admin.md2048.CellView
+                                        android:id="@+id/cell_21"
+                                        android:layout_width="match_parent"
+                                        android:layout_height="wrap_content"/>
+                            </LinearLayout>
+                            <LinearLayout
                                     android:layout_width="0dp"
                                     android:layout_height="wrap_content"
                                     android:layout_margin="5dp"
-                                    android:layout_weight="1"/>
-
-                            <com.admin.md2048.CellView
-                                    android:id="@+id/cell_23"
+                                    android:layout_weight="1"
+                                    android:background="@drawable/cell_rectangle">
+                                <com.admin.md2048.CellView
+                                        android:id="@+id/cell_22"
+                                        android:layout_width="match_parent"
+                                        android:layout_height="wrap_content"/>
+                            </LinearLayout>
+                            <LinearLayout
                                     android:layout_width="0dp"
                                     android:layout_height="wrap_content"
                                     android:layout_margin="5dp"
-                                    android:layout_weight="1"/>
+                                    android:layout_weight="1"
+                                    android:background="@drawable/cell_rectangle">
+                                <com.admin.md2048.CellView
+                                        android:id="@+id/cell_23"
+                                        android:layout_width="match_parent"
+                                        android:layout_height="wrap_content"/>
+                            </LinearLayout>
 
                         </LinearLayout>
 
@@ -271,33 +364,50 @@
                                 android:layout_height="wrap_content"
                                 android:orientation="horizontal">
 
-                            <com.admin.md2048.CellView
-                                    android:id="@+id/cell_30"
+                            <LinearLayout
                                     android:layout_width="0dp"
                                     android:layout_height="wrap_content"
                                     android:layout_margin="5dp"
-                                    android:layout_weight="1"/>
-
-                            <com.admin.md2048.CellView
-                                    android:id="@+id/cell_31"
+                                    android:layout_weight="1"
+                                    android:background="@drawable/cell_rectangle">
+                                <com.admin.md2048.CellView
+                                        android:id="@+id/cell_30"
+                                        android:layout_width="match_parent"
+                                        android:layout_height="wrap_content"/>
+                            </LinearLayout>
+                            <LinearLayout
                                     android:layout_width="0dp"
                                     android:layout_height="wrap_content"
                                     android:layout_margin="5dp"
-                                    android:layout_weight="1"/>
-
-                            <com.admin.md2048.CellView
-                                    android:id="@+id/cell_32"
+                                    android:layout_weight="1"
+                                    android:background="@drawable/cell_rectangle">
+                                <com.admin.md2048.CellView
+                                        android:id="@+id/cell_31"
+                                        android:layout_width="match_parent"
+                                        android:layout_height="wrap_content"/>
+                            </LinearLayout>
+                            <LinearLayout
                                     android:layout_width="0dp"
                                     android:layout_height="wrap_content"
                                     android:layout_margin="5dp"
-                                    android:layout_weight="1"/>
-
-                            <com.admin.md2048.CellView
-                                    android:id="@+id/cell_33"
+                                    android:layout_weight="1"
+                                    android:background="@drawable/cell_rectangle">
+                                <com.admin.md2048.CellView
+                                        android:id="@+id/cell_32"
+                                        android:layout_width="match_parent"
+                                        android:layout_height="wrap_content"/>
+                            </LinearLayout>
+                            <LinearLayout
                                     android:layout_width="0dp"
                                     android:layout_height="wrap_content"
                                     android:layout_margin="5dp"
-                                    android:layout_weight="1"/>
+                                    android:layout_weight="1"
+                                    android:background="@drawable/cell_rectangle">
+                                <com.admin.md2048.CellView
+                                        android:id="@+id/cell_33"
+                                        android:layout_width="match_parent"
+                                        android:layout_height="wrap_content"/>
+                            </LinearLayout>
                         </LinearLayout>
 
                     </LinearLayout>
@@ -313,7 +423,7 @@
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
                             android:layout_above="@id/grid_bottom"
-                            android:background="#66f7f7f7"
+                            android:background="@color/game_over"
                             android:gravity="center"
                             android:text="@string/game_over"
                             android:textSize="50sp"
