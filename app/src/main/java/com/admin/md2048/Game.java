@@ -18,6 +18,8 @@ public class Game {
     private Context context;
     private CellView cellViewsMatrix[][];
 
+
+
     /**
      * 保存前一个状态，用于撤销操作
      */
@@ -41,6 +43,12 @@ public class Game {
      */
     private boolean gameStatus;
 
+    /**
+     * 记录合并数字的坐标
+     * 用于绘制合并的动画效果
+     */
+    private int animation[][];
+
     public Game(Context context, List<CellView> cellViewList) {
         this.context = context;
         curScore = 0;
@@ -49,6 +57,7 @@ public class Game {
         columnSize = (int) Math.sqrt(cellViewList.size());
         cellViewsMatrix = new CellView[columnSize][columnSize];
         curCellsMatrix = new int[columnSize][columnSize];
+        animation = new int[columnSize][columnSize];
 
         for (int i = 0; i < cellViewList.size(); i++) {
             int row = i / columnSize, col = i % columnSize;
@@ -88,16 +97,18 @@ public class Game {
     /**
      * 根据用户手势合并数值
      * 关于isAutoUpdateView补充说明：
-     *     该参数为了避免新开子线程中调用该方法时，更新UI线程而引起的异常(CalledFromWrongThreadException)
-     *     而使用子线程是为了AI程序能够模拟人类玩家
+     * 该参数为了避免新开子线程中调用该方法时，更新UI线程而引起的异常(CalledFromWrongThreadException)
+     * 而使用子线程是为了AI程序能够模拟人类玩家
      *
      * @param action
      * @param isAutoUpdateView 是否自动更新视图，如果传入false，需要手动更新视图
      */
-    public void move(int action,boolean isAutoUpdateView) {
+    public void move(int action, boolean isAutoUpdateView) {
+        ArrayUtil.intiMatrixToZero(animation);
+//        ArrayUtil.printMatrix(animation);
         if (isGameOver()) {
             gameStatus = true;
-            if (isAutoUpdateView){
+            if (isAutoUpdateView) {
                 gameOverListener.gameOver(curScore);
             }
         } else {
@@ -125,7 +136,7 @@ public class Game {
                 preScore = saveScore;
                 ArrayUtil.matrixCopy(saveState, preCellsMatrix, columnSize, columnSize);
                 //自动更新视图
-                if (isAutoUpdateView){
+                if (isAutoUpdateView) {
                     //通知监听者分数发生了改变
                     scoreChangeListener.changeScore(curScore);
                     //更新视图
@@ -140,14 +151,14 @@ public class Game {
     /**
      * 手动更新视图
      * 判断游戏是否结束
-     *     结束：显示结束视图
-     *     未结束：更新score、方块的视图
+     * 结束：显示结束视图
+     * 未结束：更新score、方块的视图
      */
-    public void manualUpdateView(){
-        if (isOver()){
+    public void manualUpdateView() {
+        if (isOver()) {
             gameOverListener.gameOver(curScore);
-        }else {
-            if (isCellHaveMoved){
+        } else {
+            if (isCellHaveMoved) {
                 scoreChangeListener.changeScore(curScore);
                 updateView();
                 generateRandomNum();
@@ -159,9 +170,15 @@ public class Game {
      * 更新视图
      */
     private void updateView() {
+        //绘制缩放动画效果
+        Animation myAnimation = AnimationUtils.loadAnimation(context, R.anim.merge_scale);
+//        ArrayUtil.printMatrix(animation);
         for (int i = 0; i < columnSize; i++) {
             for (int j = 0; j < columnSize; j++) {
                 cellViewsMatrix[i][j].setNumber(curCellsMatrix[i][j]);
+                if (animation[i][j] != 0) {
+                    cellViewsMatrix[i][j].startAnimation(myAnimation);
+                }
             }
         }
     }
@@ -170,6 +187,7 @@ public class Game {
      * 撤销操作(允许撤销一次)
      */
     public void undoMove() {
+        ArrayUtil.intiMatrixToZero(animation);
         curScore = preScore;
         ArrayUtil.matrixCopy(preCellsMatrix, curCellsMatrix, columnSize, columnSize);
         scoreChangeListener.changeScore(curScore);
@@ -181,7 +199,7 @@ public class Game {
      */
     private void actionLeftMove() {
         for (int i = 0; i < columnSize; i++) {
-            mergeCells(curCellsMatrix[i], Constants.ACTION_LEFT);
+            mergeCells(curCellsMatrix[i], Constants.ACTION_LEFT, i);
         }
     }
 
@@ -190,7 +208,7 @@ public class Game {
      */
     private void actionRightMove() {
         for (int i = 0; i < columnSize; i++) {
-            mergeCells(curCellsMatrix[i], Constants.ACTION_RIGHT);
+            mergeCells(curCellsMatrix[i], Constants.ACTION_RIGHT, i);
         }
     }
 
@@ -200,9 +218,10 @@ public class Game {
     private void actionUpMove() {
         ArrayUtil.antiClockwiseRotate90(curCellsMatrix, columnSize);
         for (int i = 0; i < columnSize; i++) {
-            mergeCells(curCellsMatrix[i], Constants.ACTION_UP);
+            mergeCells(curCellsMatrix[i], Constants.ACTION_UP, i);
         }
         ArrayUtil.clockwiseRotate90(curCellsMatrix, columnSize);
+        ArrayUtil.clockwiseRotate90(animation, columnSize);
     }
 
     /**
@@ -211,18 +230,25 @@ public class Game {
     private void actionDownMove() {
         ArrayUtil.antiClockwiseRotate90(curCellsMatrix, columnSize);
         for (int i = 0; i < columnSize; i++) {
-            mergeCells(curCellsMatrix[i], Constants.ACTION_DOWN);
+            mergeCells(curCellsMatrix[i], Constants.ACTION_DOWN, i);
         }
         ArrayUtil.clockwiseRotate90(curCellsMatrix, columnSize);
+        ArrayUtil.clockwiseRotate90(animation, columnSize);
     }
 
     /**
      * 合并相同的数字
+     * 关于新增参数line的补充说明：
+     * 方便记录需要绘制动画效果的方块的坐标
      *
      * @param row
      * @param action
+     * @param line   表示当前传入的row[]是矩阵的第几行数据
      */
-    private void mergeCells(int[] row, int action) {
+    private void mergeCells(int[] row, int action, int line) {
+        //是否需要绘制动画标记
+        int animMark[] = new int[row.length];
+
         int mergeRow[] = new int[row.length];
         System.arraycopy(row, 0, mergeRow, 0, row.length);
 
@@ -236,6 +262,8 @@ public class Game {
                     if (mergeRow[i] == mergeRow[j]) {
                         mergeRow[i] *= 2;
                         mergeRow[j] = 0;
+                        //记录动画标记
+                        animMark[i] = 1;
                         //分数增加
                         curScore += mergeRow[i];
                     }
@@ -245,8 +273,12 @@ public class Game {
 
             int k = 0;
             //移动，如 4 0 8 0，移动后为 4 8 0 0
-            for (int aMergeRow : mergeRow) {
-                if (aMergeRow != 0) moveRow[k++] = aMergeRow;
+            for (int i = 0; i < mergeRow.length; i++) {
+                if (mergeRow[i] != 0) {
+                    //移动动画标记
+                    if (animMark[i] != 0) animation[line][k] = animMark[i];
+                    moveRow[k++] = mergeRow[i];
+                }
             }
         }
         if (action == Constants.ACTION_RIGHT || action == Constants.ACTION_DOWN) {
@@ -258,6 +290,8 @@ public class Game {
                     if (mergeRow[i] == mergeRow[j]) {
                         mergeRow[i] *= 2;
                         mergeRow[j] = 0;
+                        //记录动画标记
+                        animMark[i] = 1;
                         //分数增加
                         curScore += mergeRow[i];
                     }
@@ -268,7 +302,11 @@ public class Game {
             int k = row.length - 1;
             //移动，如 0 4 0 8，移动后为 0 0 4 8
             for (int i = k; i >= 0; i--) {
-                if (mergeRow[i] != 0) moveRow[k--] = mergeRow[i];
+                if (mergeRow[i] != 0) {
+                    //移动动画标记
+                    if (animMark[i] != 0) animation[line][k] = animMark[i];
+                    moveRow[k--] = mergeRow[i];
+                }
             }
         }
 
@@ -294,7 +332,8 @@ public class Game {
         int newNum = Math.random() < 0.9 ? 2 : 4;
         curCellsMatrix[zeroCells.get(next) / columnSize][zeroCells.get(next) % columnSize] = newNum;
         cellViewsMatrix[zeroCells.get(next) / columnSize][zeroCells.get(next) % columnSize].setNumber(newNum);
-        Animation  myAnimation = AnimationUtils.loadAnimation(context, R.anim.scale);
+        //绘制缩放动画效果
+        Animation myAnimation = AnimationUtils.loadAnimation(context, R.anim.scale);
         cellViewsMatrix[zeroCells.get(next) / columnSize][zeroCells.get(next) % columnSize].startAnimation(myAnimation);
     }
 

@@ -4,7 +4,7 @@
                                    android:id="@+id/toolbar"
                                    android:layout_width="match_parent"
                                    android:layout_height="40dp"
-                                   android:background="#0099cc"
+                                   android:background="#887f76"
                                    android:minHeight="40dp"
                                    app:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
 </android.support.v7.widget.Toolbar>

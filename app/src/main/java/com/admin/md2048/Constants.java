@@ -11,4 +11,11 @@ public class Constants {
 
     public static final int GENERAL_STRATEGY = 0;
     public static final int ADVANCED_STRATEGY = 1;
+
+    /**
+     * Auto play
+     */
+    public static final int PLAYING = 0;
+    public static final int PAUSE = 1;
+    public static final int STOP = 2;
 }

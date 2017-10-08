@@ -320,13 +320,26 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 break;
             case R.id.menu_general_strategy:
                 mDrawerLayout.closeDrawer(GravityCompat.START);
-                Player.play(game,handler);
+                Player.getInstance().play(game,handler);
                 break;
             case R.id.auto:
-                Player.play(game,handler);
+                autoPlay(game,handler);
                 break;
             case R.id.hint:
                 break;
+        }
+    }
+
+    private void autoPlay(Game game,Handler handler){
+        if(Player.getPlayerStatus() == Constants.STOP){
+            Player.getInstance().play(game,handler);
+            autoView.setText(R.string.stop);
+        }else if (Player.getPlayerStatus() == Constants.PLAYING){
+            Player.getInstance().pause();
+            autoView.setText(R.string.go_on);
+        }else if (Player.getPlayerStatus() == Constants.PAUSE){
+            Player.getInstance().goOn();
+            autoView.setText(R.string.stop);
         }
     }
 

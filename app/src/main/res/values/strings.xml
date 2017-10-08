@@ -25,5 +25,7 @@
     <string name="advanced_strategy">开发者模式</string>
 
     <string name="auto">Auto</string>
+    <string name="stop">Stop</string>
+    <string name="go_on">GoOn</string>
     <string name="hint">Hint</string>
 </resources>

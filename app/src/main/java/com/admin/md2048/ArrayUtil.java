@@ -6,6 +6,42 @@ package com.admin.md2048;
 public class ArrayUtil {
 
     /**
+     * 打印矩阵
+     *
+     * @param matrix
+     */
+    public static void printMatrix(int[][] matrix) {
+        System.out.print("{");
+        for (int i = 0; i < matrix.length; i++) {
+            for (int j = 0; j < matrix[0].length; j++) {
+                if (i == matrix.length - 1 && j == matrix[0].length - 1) {
+                    System.out.print(" " + matrix[i][j] + "}");
+                } else if (i == 0 && j == 0) {
+                    System.out.print(matrix[i][j]);
+                } else if (j == matrix[0].length - 1) {
+                    System.out.println(" " + matrix[i][j]);
+                } else {
+                    System.out.print(" " + matrix[i][j]);
+                }
+            }
+        }
+        System.out.println();
+    }
+
+    /**
+     * 初始化所有元素为0
+     *
+     * @param matrix
+     */
+    public static void intiMatrixToZero(int[][] matrix) {
+        for (int i = 0; i < matrix.length; i++) {
+            for (int j = 0; j < matrix[0].length; j++) {
+                matrix[i][j] = 0;
+            }
+        }
+    }
+
+    /**
      * 复制矩阵内容
      *
      * @param srcMatrix
