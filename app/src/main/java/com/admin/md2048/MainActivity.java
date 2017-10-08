@@ -312,7 +312,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             case R.id.undo:
                 gameOverView.setVisibility(View.GONE);
                 refreshView.setBackgroundResource(R.drawable.background_rectangle);
-                game.undoMove();
+                game.undoMove(1);
                 break;
             case R.id.menu_reset_high_score:
                 mDrawerLayout.closeDrawer(GravityCompat.START);
@@ -321,6 +321,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             case R.id.menu_general_strategy:
                 mDrawerLayout.closeDrawer(GravityCompat.START);
                 Player.getInstance().play(game,handler);
+                break;
+            case R.id.menu_advanced_strategy:
+                mDrawerLayout.closeDrawer(GravityCompat.START);
+                game.undoMove(3);
                 break;
             case R.id.auto:
                 autoPlay(game,handler);

@@ -49,7 +49,7 @@ public class ArrayUtil {
      * @param row
      * @param col
      */
-    public static void matrixCopy(int[][] srcMatrix, int[][] destMatrix, int row, int col) {
+    public static void copyMatrix(int[][] srcMatrix, int[][] destMatrix, int row, int col) {
         for (int i = 0; i < row; i++) {
             System.arraycopy(srcMatrix[i], 0, destMatrix[i], 0, col);
         }

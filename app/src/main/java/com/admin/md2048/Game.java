@@ -1,7 +1,6 @@
 package com.admin.md2048;
 
 import android.content.Context;
-import android.os.Handler;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 
@@ -18,7 +17,14 @@ public class Game {
     private Context context;
     private CellView cellViewsMatrix[][];
 
-
+    /**
+     * 维护一个状态list,用于撤销操作
+     */
+    private List<GameState> gameStates;
+    /**
+     * 允许一次最多撤销次数
+     */
+    private final int UNDO_TIMES = 3;
 
     /**
      * 保存前一个状态，用于撤销操作
@@ -58,6 +64,7 @@ public class Game {
         cellViewsMatrix = new CellView[columnSize][columnSize];
         curCellsMatrix = new int[columnSize][columnSize];
         animation = new int[columnSize][columnSize];
+        gameStates = new ArrayList<>();
 
         for (int i = 0; i < cellViewList.size(); i++) {
             int row = i / columnSize, col = i % columnSize;
@@ -73,7 +80,7 @@ public class Game {
         generateRandomNum();
         generateRandomNum();
         preCellsMatrix = new int[columnSize][columnSize];
-        ArrayUtil.matrixCopy(curCellsMatrix, preCellsMatrix, columnSize, columnSize);
+        ArrayUtil.copyMatrix(curCellsMatrix, preCellsMatrix, columnSize, columnSize);
     }
 
     /**
@@ -86,10 +93,15 @@ public class Game {
      */
     public void recover(int[][] preState, int[][] curState, int preScore, int curScore) {
         gameStatus = false;
-        ArrayUtil.matrixCopy(preState, preCellsMatrix, preState.length, preState[0].length);
-        ArrayUtil.matrixCopy(curState, curCellsMatrix, curState.length, curState[0].length);
+        ArrayUtil.copyMatrix(preState, preCellsMatrix, preState.length, preState[0].length);
+        ArrayUtil.copyMatrix(curState, curCellsMatrix, curState.length, curState[0].length);
         this.preScore = preScore;
         this.curScore = curScore;
+        //添加到状态队列中
+        if (gameStates.size() + 1 > UNDO_TIMES) {
+            gameStates.remove(gameStates.size() - 1);
+        }
+        gameStates.add(0, new GameState(preScore, preCellsMatrix));
         scoreChangeListener.changeScore(curScore);
         updateView();
     }
@@ -114,7 +126,7 @@ public class Game {
         } else {
             //移动前，先保存当前状态( 网格状态、分数 )
             int saveState[][] = new int[columnSize][columnSize], saveScore = curScore;
-            ArrayUtil.matrixCopy(curCellsMatrix, saveState, columnSize, columnSize);
+            ArrayUtil.copyMatrix(curCellsMatrix, saveState, columnSize, columnSize);
 
             isCellHaveMoved = false;
             switch (action) {
@@ -134,7 +146,13 @@ public class Game {
             //如果发生过移动则更新前一个状态；如果未发生移动，前一个状态不变
             if (isCellHaveMoved) {
                 preScore = saveScore;
-                ArrayUtil.matrixCopy(saveState, preCellsMatrix, columnSize, columnSize);
+                ArrayUtil.copyMatrix(saveState, preCellsMatrix, columnSize, columnSize);
+                //添加到状态队列中
+                if (gameStates.size() + 1 > UNDO_TIMES) {
+                    gameStates.remove(gameStates.size() - 1);
+                }
+                gameStates.add(0, new GameState(saveScore, saveState));
+
                 //自动更新视图
                 if (isAutoUpdateView) {
                     //通知监听者分数发生了改变
@@ -184,14 +202,32 @@ public class Game {
     }
 
     /**
-     * 撤销操作(允许撤销一次)
+     * 撤销操作(需要指定次数，但不应超过3次)
+     *
+     * @param times 撤销次数
      */
-    public void undoMove() {
-        ArrayUtil.intiMatrixToZero(animation);
-        curScore = preScore;
-        ArrayUtil.matrixCopy(preCellsMatrix, curCellsMatrix, columnSize, columnSize);
-        scoreChangeListener.changeScore(curScore);
-        updateView();
+    public void undoMove(int times) {
+        if (times <= gameStates.size()) {
+            ArrayUtil.intiMatrixToZero(animation);
+            GameState gameState = gameStates.get(times - 1);
+            //维护list,移除无用状态
+            for (int i=0;i<times;i++){
+                gameStates.remove(i);
+            }
+            curScore = gameState.getScore();
+            ArrayUtil.copyMatrix(gameState.getCellMatrix(), curCellsMatrix, columnSize, columnSize);
+            if (gameStates.size()>0){
+                gameState = gameStates.get(0);
+                preScore = gameState.getScore();
+                ArrayUtil.copyMatrix(gameState.getCellMatrix(), preCellsMatrix, columnSize, columnSize);
+            }else {
+                preScore = curScore;
+                ArrayUtil.copyMatrix(curCellsMatrix, preCellsMatrix, columnSize, columnSize);
+            }
+
+            scoreChangeListener.changeScore(curScore);
+            updateView();
+        }
     }
 
     /**
