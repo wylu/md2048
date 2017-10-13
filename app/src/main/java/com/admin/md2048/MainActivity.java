@@ -91,10 +91,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
 //        Log.d("==onCreate==", "========onCreate>>>>>>>>>>>>>");
         isGameOver = false;
-        //判断是否存在保存的游戏状态，如果没有则重新创建一个游戏；如果有则在执行onResume()时恢复游戏状态
-        SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
-        if (!settings.getBoolean(SAVE_STATE, false)) {
-            playGame();
+
+        if (savedInstanceState != null){
+            if (savedInstanceState.getBoolean("hasState")){
+                loadSaveState();
+            }
+        }else {
+            //判断是否存在保存的游戏状态，如果没有则重新创建一个游戏；如果有则在执行onResume()时恢复游戏状态
+            SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
+            if (!settings.getBoolean(SAVE_STATE, false)) {
+                playGame();
+            }
         }
 
     }
@@ -164,6 +171,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             playGame();
         }
         game.recover(preState, curState, preScore, curScore);
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        outState.putBoolean("hasState",true);
+        saveState();
     }
 
     @Override
