@@ -41,6 +41,22 @@ public class ArrayUtil {
         }
     }
 
+    public static int getMax(int[][] matrix) {
+        int max = 0;
+        for (int[] aMatrix : matrix)
+            for (int j = 0; j < matrix[0].length; j++)
+                if (aMatrix[j] > max) max = aMatrix[j];
+        return max;
+    }
+
+    public static double getMax(double[][] matrix) {
+        double max = 0;
+        for (double[] aMatrix : matrix)
+            for (int j = 0; j < matrix[0].length; j++)
+                if (aMatrix[j] > max) max = aMatrix[j];
+        return max;
+    }
+
     /**
      * 复制矩阵内容
      *
@@ -68,6 +84,23 @@ public class ArrayUtil {
         for (int i = 0; i < arr1.length; i++) {
             if (arr1[i] != arr2[i])
                 return false;
+        }
+        return true;
+    }
+
+    /**
+     * 判断两个矩阵的内容是否相等
+     * 要求传入矩阵的规模一致
+     *
+     * @param matrix_1
+     * @param matrix_2
+     * @return
+     */
+    public static boolean isMatrixEquals(int[][] matrix_1, int[][] matrix_2){
+        for (int i = 0; i < matrix_1.length; i++) {
+            for (int j = 0; j < matrix_1[0].length; j++) {
+                if (matrix_1[i][j] != matrix_2[i][j]) return false;
+            }
         }
         return true;
     }

@@ -16,6 +16,5 @@ public class Constants {
      * Auto play
      */
     public static final int PLAYING = 0;
-    public static final int PAUSE = 1;
-    public static final int STOP = 2;
+    public static final int STOP = 1;
 }

@@ -7,13 +7,16 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.preference.PreferenceManager;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.*;
 import android.widget.*;
+import com.admin.md2048.AI.AI;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -64,10 +67,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
      * 处理子线程的视图更新操作
      */
     @SuppressLint("HandlerLeak")
-    private final Handler handler = new Handler(){
+    private final Handler handler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
-            switch (msg.what){
+            switch (msg.what) {
                 case Constants.GENERAL_STRATEGY:
                     game.manualUpdateView();
                     break;
@@ -92,11 +95,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 //        Log.d("==onCreate==", "========onCreate>>>>>>>>>>>>>");
         isGameOver = false;
 
-        if (savedInstanceState != null){
-            if (savedInstanceState.getBoolean("hasState")){
+        if (savedInstanceState != null) {
+            if (savedInstanceState.getBoolean("hasState")) {
                 loadSaveState();
             }
-        }else {
+        } else {
             //判断是否存在保存的游戏状态，如果没有则重新创建一个游戏；如果有则在执行onResume()时恢复游戏状态
             SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
             if (!settings.getBoolean(SAVE_STATE, false)) {
@@ -175,7 +178,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
-        outState.putBoolean("hasState",true);
+        outState.putBoolean("hasState", true);
         saveState();
     }
 
@@ -220,6 +223,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 }
                 gameOverView.setVisibility(View.VISIBLE);
                 refreshView.setBackgroundResource(R.drawable.cell_rectangle_2048);
+                //
+                autoView.setText(R.string.auto);
 //                Handler handler = new Handler();
 //                handler.postDelayed(new Runnable() {
 //                    @Override
@@ -333,30 +338,44 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 break;
             case R.id.menu_general_strategy:
                 mDrawerLayout.closeDrawer(GravityCompat.START);
-                Player.getInstance().play(game,handler);
+                Player.getInstance().play(game, handler);
                 break;
             case R.id.menu_advanced_strategy:
                 mDrawerLayout.closeDrawer(GravityCompat.START);
                 game.undoMove(3);
                 break;
             case R.id.auto:
-                autoPlay(game,handler);
+                autoPlay(game, handler);
                 break;
             case R.id.hint:
+                AI player = new AI(new GameState(game.getCurCellsMatrix()));
+                int bestMove = player.getBestMove();
+//                Log.d("==bestMove==", "===========>>>>>>>>>>>>>"+bestMove);
+                switch (bestMove) {
+                    case Constants.ACTION_UP:
+                        showHintView.setImageResource(R.drawable.arrow_up);
+                        break;
+                    case Constants.ACTION_RIGHT:
+                        showHintView.setImageResource(R.drawable.arrow_right);
+                        break;
+                    case Constants.ACTION_DOWN:
+                        showHintView.setImageResource(R.drawable.arrow_down);
+                        break;
+                    case Constants.ACTION_LEFT:
+                        showHintView.setImageResource(R.drawable.arrow_left);
+                        break;
+                }
                 break;
         }
     }
 
-    private void autoPlay(Game game,Handler handler){
-        if(Player.getPlayerStatus() == Constants.STOP){
-            Player.getInstance().play(game,handler);
+    private void autoPlay(Game game, Handler handler) {
+        if (Player.getPlayerStatus() == Constants.STOP) {
+            Player.getInstance().play(game, handler);
             autoView.setText(R.string.stop);
-        }else if (Player.getPlayerStatus() == Constants.PLAYING){
-            Player.getInstance().pause();
-            autoView.setText(R.string.go_on);
-        }else if (Player.getPlayerStatus() == Constants.PAUSE){
-            Player.getInstance().goOn();
-            autoView.setText(R.string.stop);
+        } else if (Player.getPlayerStatus() == Constants.PLAYING) {
+            Player.getInstance().stop();
+            autoView.setText(R.string.auto);
         }
     }
 
@@ -416,19 +435,23 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         switch (keyCode) {
             case KeyEvent.KEYCODE_DPAD_DOWN:
-                game.move(Constants.ACTION_DOWN,true);
+                game.move(Constants.ACTION_DOWN, true);
+                resetShowHindView();
 //                Toast.makeText(this, "down", Toast.LENGTH_SHORT).show();
                 return true;
             case KeyEvent.KEYCODE_DPAD_UP:
-                game.move(Constants.ACTION_UP,true);
+                game.move(Constants.ACTION_UP, true);
+                resetShowHindView();
 //                Toast.makeText(this, "up", Toast.LENGTH_SHORT).show();
                 return true;
             case KeyEvent.KEYCODE_DPAD_LEFT:
-                game.move(Constants.ACTION_LEFT,true);
+                game.move(Constants.ACTION_LEFT, true);
+                resetShowHindView();
 //                Toast.makeText(this, "left", Toast.LENGTH_SHORT).show();
                 return true;
             case KeyEvent.KEYCODE_DPAD_RIGHT:
-                game.move(Constants.ACTION_RIGHT,true);
+                game.move(Constants.ACTION_RIGHT, true);
+                resetShowHindView();
 //                Toast.makeText(this, "right", Toast.LENGTH_SHORT).show();
                 return true;
         }
@@ -436,4 +459,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         return super.onKeyDown(keyCode, event);
     }
 
+    void resetShowHindView() {
+        showHintView.setImageDrawable(null);
+    }
 }

@@ -79,6 +79,19 @@ public class Game {
         scoreChangeListener.changeScore(curScore);
         generateRandomNum();
         generateRandomNum();
+//        generateRandomNum(1,1,2);
+//        generateRandomNum(2,3,2);
+//        generateRandomNum(0,0,8);
+//        generateRandomNum(0,1,4);
+//        generateRandomNum(0,2,64);
+//        generateRandomNum(0,3,8);
+//        generateRandomNum(1,1,8);
+//        generateRandomNum(1,2,32);
+//        generateRandomNum(1,3,4);
+//        generateRandomNum(2,2,8);
+//        generateRandomNum(2,3,16);
+//        generateRandomNum(3,0,2);
+//        generateRandomNum(3,2,4);
         preCellsMatrix = new int[columnSize][columnSize];
         ArrayUtil.copyMatrix(curCellsMatrix, preCellsMatrix, columnSize, columnSize);
     }
@@ -351,6 +364,11 @@ public class Game {
         }
 
         System.arraycopy(moveRow, 0, row, 0, moveRow.length);
+    }
+
+    private void generateRandomNum(int x,int y,int value) {
+        curCellsMatrix[x][y] = value;
+        cellViewsMatrix[x][y].setNumber(value);
     }
 
     /**
