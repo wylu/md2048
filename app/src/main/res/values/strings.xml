@@ -21,7 +21,7 @@
     <string name="to_reach_65536">Next Goal 65536</string>
 
 
-    <string name="general_strategy">点我帮你开挂</string>
+    <string name="general_strategy">AI</string>
     <string name="advanced_strategy">开发者模式</string>
 
     <string name="auto">Auto</string>

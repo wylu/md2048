@@ -49,7 +49,7 @@ public class Player {
                         try {
                             game.move(new AI(new GameState(game.getCurCellsMatrix())).getBestMove(), false);
                             handler.sendMessage(handler.obtainMessage(Constants.GENERAL_STRATEGY));
-                            Thread.sleep(50);
+                            Thread.sleep(20);
                             if (playerStatus == STOP) break;
                         } catch (InterruptedException e) {
                             e.printStackTrace();

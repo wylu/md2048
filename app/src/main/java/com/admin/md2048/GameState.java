@@ -49,17 +49,19 @@ public class GameState {
         return cnt_x >= 0 && cnt_x < 4 && cnt_y >= 0 && cnt_y < 4;
     }
 
-    // measures how smooth the grid is (as if the values of the pieces
-    // were interpreted as elevations). Sums of the pairwise difference
-    // between neighboring tiles (in log space, so it represents the
-    // number of merges that need to happen before they can merge).
-    // Note that the pieces can be distant
+    /**
+     * 测量网格的平滑程度(这些块的值可以形象地解释为海拔)。
+     * 相邻两个方块的值差异越小，格局就越平滑(在log空间中，所以它表示在合并之前需要进行的合并的数量)。
+     *
+     * @return
+     */
     public double smoothness() {
         int smoothness = 0;
         for (int x = 0; x < 4; x++) {
             for (int y = 0; y < 4; y++) {
                 if (this.cellMatrix[x][y] != 0) {
                     double value = Math.log(this.cellMatrix[x][y]) / Math.log(2);
+                    // 计算水平方向和垂直方向的平滑性评估值
                     for (int direction = 1; direction <= 2; direction++) {
                         int[] vector = this.vectors[direction];
                         int cnt_x = x, cnt_y = y;
@@ -80,13 +82,17 @@ public class GameState {
         return smoothness;
     }
 
-    // measures how monotonic the grid is. This means the values of the tiles are strictly increasing
-    // or decreasing in both the left/right and up/down directions
+    /**
+     * 测量网格的单调性。
+     * 这意味着在向左/向右和向上/向下的方向，方块的值都是严格递增或递减的。
+     *
+     * @return
+     */
     public double monotonicity() {
-        // scores for all four directions
+        // 保存四个方向格局单调性的评估值
         int[] totals = {0, 0, 0, 0};
 
-        // left/right direction
+        // 左/右 方向
         for (int x = 0; x < 4; x++) {
             int current = 0;
             int next = current + 1;
@@ -105,7 +111,7 @@ public class GameState {
             }
         }
 
-        // up/down direction
+        // 上/下 方向
         for (int y = 0; y < 4; y++) {
             int current = 0;
             int next = current + 1;
@@ -124,9 +130,15 @@ public class GameState {
             }
         }
 
+        // 取四个方向中最大的值为当前格局单调性的评估值
         return Math.max(totals[0], totals[1]) + Math.max(totals[2], totals[3]);
     }
 
+    /**
+     * 取最大数，这里取对数是为与前面其它指标的计算保持一致，均在log空间进行
+     *
+     * @return
+     */
     public double maxValue() {
         return Math.log(ArrayUtil.getMax(cellMatrix)) / Math.log(2);
     }
@@ -244,7 +256,11 @@ public class GameState {
         this.cellMatrix[x][y] = value;
     }
 
-    // counts the number of isolated groups.
+    /**
+     * 递归调用计算当前格局的连通块个数
+     *
+     * @return
+     */
     public int islands() {
         int islands = 0;
 

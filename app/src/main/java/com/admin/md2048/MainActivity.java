@@ -223,7 +223,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 }
                 gameOverView.setVisibility(View.VISIBLE);
                 refreshView.setBackgroundResource(R.drawable.cell_rectangle_2048);
-                //
+
                 autoView.setText(R.string.auto);
 //                Handler handler = new Handler();
 //                handler.postDelayed(new Runnable() {
@@ -325,12 +325,18 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 refreshView.setBackgroundResource(R.drawable.background_rectangle);
                 highScore = getHighScoreFromSpf();
                 highScoreView.setText(String.valueOf(highScore));
+                Player.getInstance().stop();
+                autoView.setText(R.string.auto);
+                resetShowHindView();
                 playGame();
                 break;
             case R.id.undo:
                 gameOverView.setVisibility(View.GONE);
                 refreshView.setBackgroundResource(R.drawable.background_rectangle);
                 game.undoMove(1);
+                Player.getInstance().stop();
+                autoView.setText(R.string.auto);
+                resetShowHindView();
                 break;
             case R.id.menu_reset_high_score:
                 mDrawerLayout.closeDrawer(GravityCompat.START);
@@ -338,14 +344,19 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 break;
             case R.id.menu_general_strategy:
                 mDrawerLayout.closeDrawer(GravityCompat.START);
-                Player.getInstance().play(game, handler);
+                autoPlay(game,handler);
+                resetShowHindView();
                 break;
             case R.id.menu_advanced_strategy:
                 mDrawerLayout.closeDrawer(GravityCompat.START);
                 game.undoMove(3);
+                Player.getInstance().stop();
+                autoView.setText(R.string.auto);
+                resetShowHindView();
                 break;
             case R.id.auto:
                 autoPlay(game, handler);
+                resetShowHindView();
                 break;
             case R.id.hint:
                 AI player = new AI(new GameState(game.getCurCellsMatrix()));
@@ -418,7 +429,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     public boolean dispatchTouchEvent(MotionEvent ev) {
         if (!mDrawerLayout.isDrawerOpen(GravityCompat.START) && !mDrawerLayout.isDrawerVisible(GravityCompat.START)) {
-            gestureDetector.onTouchEvent(ev);
+            if (Player.getPlayerStatus() == Constants.STOP)
+                gestureDetector.onTouchEvent(ev);
         }
         return super.dispatchTouchEvent(ev);
     }
