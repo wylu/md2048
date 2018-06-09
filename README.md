@@ -24,9 +24,9 @@
 
 点击`Hint`按钮，显示滑动提示
 
-<img src="screenshots\Screenshot_2018-01-13-11-40-07-821_com.admin.md20.png" style="zoom:30%" />
+<img src="screenshots\QQ截图20180609132622.png"/>
 
-<img src="screenshots\Screenshot_2018-01-13-11-40-40-632_com.admin.md20.png" style="zoom:30%" />
+<img src="screenshots\QQ截图20180609132643.png"/>
 
 ##### 3. 基础算法
 
@@ -55,13 +55,13 @@
 
    单调性指方块从左到右、从上到下均遵从递增或递减。一般来说，越单调的格局越好。下面是一个具有良好单调格局的例子：
    
-   <img src="screenshots\7cc829d3gw1ef80z7ayb7j209k09jq3a.jpg" width="444" height="789"/>
+   <img src="screenshots\7cc829d3gw1ef80z7ayb7j209k09jq3a.jpg"/>
 
 2. 平滑性
 
    平滑性是指每个方块与其直接相邻方块数值的差，其中差越小越平滑。例如2旁边是4就比2旁边是128平滑。一般认为越平滑的格局越好。下面是一个具有极端平滑性的例子：
 
-   <img src="screenshots\7cc829d3gw1ef80z84lcmj209i09j0t5.jpg" width="444" height="789"/>
+   <img src="screenshots\7cc829d3gw1ef80z84lcmj209i09j0t5.jpg"/>
 
 3. 空格数
 
@@ -520,18 +520,9 @@ private int iterativeDeep(long minSearchTime) {
 
 自动运行结果
 
-<img src="screenshots\QQ图片20180111223607.jpg" style="zoom:60%" />
+<img src="screenshots\QQ图片20180111223607.jpg"/>
 
-<img src="screenshots\Screenshot_2018-01-11-22-03-37-853_com.admin.md20.png" width="444" height="789" />
-
-<img src="screenshots\Screenshot_2018-01-12-10-58-22-936_com.admin.md20.png" width="444" height="789" />
-
-<img src="screenshots\Screenshot_2018-01-12-17-40-44-378_com.admin.md20.png" width="444" height="789" />
-
-<img src="screenshots\Screenshot_2018-01-13-15-10-55-737_com.admin.md20.png" width="444" height="789" />
-
-<img src="screenshots\Screenshot_2018-01-13-14-47-50-215_com.admin.md20.png" width="444" height="789" />
-
+<img src="screenshots\QQ截图20180609132740.png"/>
 
 
 #### 结论
