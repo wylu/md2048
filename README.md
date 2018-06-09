@@ -520,8 +520,6 @@ private int iterativeDeep(long minSearchTime) {
 
 自动运行结果
 
-<img src="screenshots\QQ图片20180111223607.jpg"/>
-
 <img src="screenshots\QQ截图20180609132740.png"/>
 
 
